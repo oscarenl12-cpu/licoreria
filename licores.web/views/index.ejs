@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario Licores Premium</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header>
+    <h1>ADMINISTRACIÓN DE LICORES</h1>
+</header>
+
+<div class="container">
+    <button class="btn-submit" style="width: auto;" onclick="abrirNuevo()">+ Agregar Nuevo Licor</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Tipo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% licores.forEach(licor => { %>
+                <tr>
+                    <td>
+                        <img src="/uploads/<%= licor.imagen %>" class="img-thumb" 
+                             onclick="verImagen('/uploads/<%= licor.imagen %>')"
+                             onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
+                    </td>
+                    <td><strong><%= licor.nombre %></strong></td>
+                    <td><%= licor.marca %></td>
+                    <td><%= licor.tipo %></td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="abrirEditar('<%= licor.id %>', '<%= licor.nombre %>', '<%= licor.marca %>', '<%= licor.tipo %>')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="/api/licores/delete/<%= licor.id %>" class="btn-action btn-delete" onclick="return confirm('¿Eliminar registro?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+
+<div id="modalForm" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrar()">&times;</span>
+        <h2 id="modalTitle">Nuevo Licor</h2>
+        <form id="formLicor" method="POST" action="/api/licores" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" name="nombre" id="inNombre" required>
+            </div>
+            <div class="form-group">
+                <label>Marca</label>
+                <input type="text" name="marca" id="inMarca" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo</label>
+                <select name="tipo" id="inTipo">
+                    <option value="WHISKY">WHISKY</option>
+                    <option value="TEQUILA">TEQUILA</option>
+                    <option value="GINEBRA">GINEBRA</option>
+                    <option value="RON">RON</option>
+                    <option value="VODKA">VODKA</option>
+                    <option value="VINO">VINO</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Imagen</label>
+                <input type="file" name="imagen" accept="image/*">
+            </div>
+            <button type="submit" class="btn-submit">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<div id="modalImgView" class="modal" onclick="this.style.display='none'">
+    <div class="modal-content">
+        <img src="" id="fullImg">
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('modalForm');
+    const form = document.getElementById('formLicor');
+
+    function abrirNuevo() {
+        document.getElementById('modalTitle').innerText = "Nuevo Licor";
+        form.action = "/api/licores";
+        form.reset();
+        modal.style.display = 'block';
+    }
+
+    function abrirEditar(id, nombre, marca, tipo) {
+        document.getElementById('modalTitle').innerText = "Editar Licor";
+        form.action = "/api/licores/update/" + id;
+        document.getElementById('inNombre').value = nombre;
+        document.getElementById('inMarca').value = marca;
+        document.getElementById('inTipo').value = tipo;
+        modal.style.display = 'block';
+    }
+
+    function verImagen(src) {
+        document.getElementById('fullImg').src = src;
+        document.getElementById('modalImgView').style.display = 'block';
+    }
+
+    function cerrar() { modal.style.display = 'none'; }
+    window.onclick = (e) => { if(e.target == modal) cerrar(); }
+</script>
+
+</body>
+</html>
